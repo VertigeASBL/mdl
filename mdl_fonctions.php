@@ -10,29 +10,6 @@
  */
 
 if (!defined('_ECRIRE_INC_VERSION')) return;
-
-/**
- * Retourne une version sans protocole et avec slash de fin d'une url
- *
- * Facilite la comparaison entre les urls…
- *
- * @param String $url
- *     L'url à normaliser
- * @return String
- *     La version normalisée de l'url
- */
-function mdl_normaliser_url ($url) {
-
-    /* Le protocole utilisé ne rentre pas en ligne de compte, alors on
-       utilise des urls implicites (commencant par "//") */
-    include_spip('inc/filtres_mini');
-    $url = protocole_implicite($url);
-
-    $url = preg_replace('#([^/])$#', '$1/', $url);
-
-    return $url;
-}
-
 /**
  * Devine la langue de l'url demandée selon le nom de domaine.
  *
@@ -43,10 +20,8 @@ function mdl_normaliser_url ($url) {
  */
 function mdl_langue_url_selon_domaine ($url) {
 
-    $url = mdl_normaliser_url($url);
-
     foreach ($GLOBALS['domaines'] as $lang => $domaine) {
-        if (strpos($url, $domaine) === 0) {
+        if ($domaine == $url) {
             return $lang;
         }
     }
@@ -66,8 +41,6 @@ function mdl_langue_url_selon_domaine ($url) {
  *     nom de domaine correspondant à la langue passée en paramètre.
  */
 function mdl_force_domaine_url_selon_langue ($url, $lang) {
-
-    $url = mdl_normaliser_url($url);
 
     $langue_url = mdl_langue_url_selon_domaine($url);
 
