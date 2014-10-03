@@ -63,12 +63,20 @@ function mdl_force_domaine_url_selon_langue ($domaine_request, $lang) {
  * la langue voulue, et on retourne un version de l'url avec le nom de
  * domaine correspondant.
  */
+function mdl_traitement_domaine_par_langue($domaine, $contexte) {
 
-    $url = html_entity_decode($url);
+    // Récupèration du domaine
+    $domaine = parse_url($domaine, PHP_URL_HOST);
 
-    $url = mdl_force_domaine_url_selon_langue($url, $contexte['lang']);
+    // On va larger le sous domaine en cour de route
+    $domaine = explode('.', $domaine);
+    if (count($domaine) == 3) {
+        unset($domaine[0]);
+    }
 
-    $url = htmlentities($url);
+    $domaine = implode('.', $domaine);
 
-    return $url;
+    $domaine = mdl_force_domaine_url_selon_langue($domaine, $contexte['lang']);
+
+    return '//'.$domaine.$_SERVER['REQUEST_URI'];
 }
