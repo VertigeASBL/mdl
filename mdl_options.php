@@ -36,10 +36,7 @@ include_spip('inc/utils');
 if ($lang = _request('lang')) {
 
     $cible = mdl_force_domaine_url_selon_langue($domaine_request, $lang);
-    spip_log('Domaine: '.$domaine_request, 'mdl');
-    spip_log('cible: '.$cible, 'mdl');
     if ( $cible !== $domaine_request ) {
-        spip_log('Redirection', 'mdl');
         include_spip('inc/headers');
         redirige_par_entete($cible);
     }
