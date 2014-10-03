@@ -37,9 +37,12 @@ if ($lang = _request('lang')) {
 
     $cible = mdl_force_domaine_url_selon_langue($domaine_request, $lang);
     if ( $cible !== $domaine_request ) {
+        // Redirection sur le bon domaine
         include_spip('inc/headers');
-        redirige_par_entete($cible);
+        redirige_par_entete('//'.$cible.$_SERVER['REQUEST_URI']);
     }
+
+
 
 /* Si la langue n'est pas demandée explicitement, on essaie de deviner
    selon l'url. */
