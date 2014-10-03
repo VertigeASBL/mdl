@@ -42,8 +42,6 @@ if ($lang = _request('lang')) {
         redirige_par_entete('//'.$cible.$_SERVER['REQUEST_URI']);
     }
 
-
-
 /* Si la langue n'est pas demandée explicitement, on essaie de deviner
    selon l'url. */
 } else {
