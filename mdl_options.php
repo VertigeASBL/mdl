@@ -35,11 +35,15 @@ $domaine_request = $_SERVER['HTTP_HOST'];
 include_spip('inc/utils');
 if ($lang = _request('lang')) {
 
+    // Page qui ne seront jamais redirigée
+    $exception = array('calendrier_mini.json');
+
     $cible = mdl_force_domaine_url_selon_langue($domaine_request, $lang);
     if ( $cible !== $domaine_request ) {
         // Redirection sur le bon domaine
         include_spip('inc/headers');
-        redirige_par_entete('//'.$cible.$_SERVER['REQUEST_URI']);
+        if (!in_array(_request('page'), $exception))
+            redirige_par_entete('//'.$cible.$_SERVER['REQUEST_URI']);
     }
 
 /* Si la langue n'est pas demandée explicitement, on essaie de deviner
