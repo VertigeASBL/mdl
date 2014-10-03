@@ -21,7 +21,7 @@ if (!defined('_ECRIRE_INC_VERSION')) return;
 function mdl_langue_url_selon_domaine ($domaine_request) {
 
     foreach ($GLOBALS['domaines'] as $lang => $domaine) {
-        if ($domaine == $domaine_request) {
+        if (strpos($domaine_request, $domaine) !== false) {
             return $lang;
         }
     }
