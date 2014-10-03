@@ -47,8 +47,6 @@ function mdl_force_domaine_url_selon_langue ($url, $lang) {
     if ($langue_url !== $lang) {
         /* On remplace le nom de domaine */
         $url = str_replace($GLOBALS['domaines'][$langue_url], $GLOBALS['domaines'][$lang], $url);
-        /* Du coup plus besoin de paramètre lang dans l'url */
-        $url = parametre_url($url, 'lang', '');
     }
 
     return $url;
