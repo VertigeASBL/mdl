@@ -49,8 +49,9 @@ if ($lang = _request('lang')) {
 /* Si la langue n'est pas demandée explicitement, on essaie de deviner
    selon l'url. */
 } else {
-    set_request('lang', mdl_langue_url_selon_domaine($url_requete));
+    set_request('lang', mdl_langue_url_selon_domaine($domaine_request));
 }
+
 
 
 /**
