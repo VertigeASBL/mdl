@@ -65,11 +65,16 @@ function mdl_force_domaine_url_selon_langue ($domaine_request, $lang) {
  */
 function mdl_traitement_domaine_par_langue($domaine, $contexte) {
 
+    // Pas touche à l'espace priver
+    if (test_espace_prive())
+        return $domaine;
+
     // Récupèration du domaine
     $domaine = parse_url($domaine, PHP_URL_HOST);
 
     // On va larger le sous domaine en cour de route
     $domaine = explode('.', $domaine);
+
     if (count($domaine) == 3) {
         unset($domaine[0]);
     }
