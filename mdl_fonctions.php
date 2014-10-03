@@ -13,15 +13,15 @@ if (!defined('_ECRIRE_INC_VERSION')) return;
 /**
  * Devine la langue de l'url demandée selon le nom de domaine.
  *
- * @param String $url
- *     L'url dont on cherche la langue
+ * @param String $domaine_request
+ *     Le domaine dont on cherche la langue
  * @return String
  *     Le code de langue correspondant à l'url donnée, si on le trouve.
  */
-function mdl_langue_url_selon_domaine ($url) {
+function mdl_langue_url_selon_domaine ($domaine_request) {
 
     foreach ($GLOBALS['domaines'] as $lang => $domaine) {
-        if ($domaine == $url) {
+        if ($domaine == $domaine_request) {
             return $lang;
         }
     }
@@ -32,24 +32,28 @@ function mdl_langue_url_selon_domaine ($url) {
  * si le nom de domaine de $url ne correspond pas à $lang, on le
  * remplace par le bon nom de domaine
  *
- * @param String $url
- *     L'url à modifier
+ * @param String $domaine_request
+ *     Le domaine à modifier
  * @param String $lang
  *     La langue que l'on souhaite pour l'url retournée
  * @return String
  *     Une url pointant sur le contenu de l'url donnée, mais sur le
  *     nom de domaine correspondant à la langue passée en paramètre.
  */
-function mdl_force_domaine_url_selon_langue ($url, $lang) {
+function mdl_force_domaine_url_selon_langue ($domaine_request, $lang) {
 
-    $langue_url = mdl_langue_url_selon_domaine($url);
+    $langue_url = mdl_langue_url_selon_domaine($domaine_request);
 
     if ($langue_url !== $lang) {
         /* On remplace le nom de domaine */
-        $url = str_replace($GLOBALS['domaines'][$langue_url], $GLOBALS['domaines'][$lang], $url);
+        $domaine_request = str_replace(
+            $GLOBALS['domaines'][$langue_url],
+            $GLOBALS['domaines'][$lang],
+            $domaine_request
+        );
     }
 
-    return $url;
+    return $domaine_request;
 }
 
 /**
@@ -59,7 +63,6 @@ function mdl_force_domaine_url_selon_langue ($url, $lang) {
  * la langue voulue, et on retourne un version de l'url avec le nom de
  * domaine correspondant.
  */
-function mdl_traitement_domaine_par_langue($url, $contexte) {
 
     $url = html_entity_decode($url);
 
