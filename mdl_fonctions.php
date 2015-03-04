@@ -70,7 +70,10 @@ function mdl_traitement_domaine_par_langue($domaine, $contexte) {
         return $domaine;
 
     // Récupèration du domaine
-    $domaine = parse_url($domaine, PHP_URL_HOST);
+    $domaine = parse_url($domaine);
+
+    $path = $domaine['path'];
+    $domaine = $domaine['host'];
 
     // On va larger le sous domaine en cour de route
     $domaine = explode('.', $domaine);
@@ -83,5 +86,5 @@ function mdl_traitement_domaine_par_langue($domaine, $contexte) {
 
     $domaine = mdl_force_domaine_url_selon_langue($domaine, $contexte['lang']);
 
-    return '//'.$domaine.$_SERVER['REQUEST_URI'];
+    return '//'.$domaine.$path.'?'.$_SERVER['QUERY_STRING'];
 }
