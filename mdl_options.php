@@ -24,34 +24,35 @@ if ( ! isset($GLOBALS['domaines'])) {
     $GLOBALS['domaines'] = lire_config('mdl/domaines');
 }
 
+$GLOBALS['domaines'] = array_map('mdl_normaliser_url', $GLOBALS['domaines']);
+
+
 /**
  * Aiguillage
  */
 
-$domaine_request = $_SERVER['HTTP_HOST'];
+$url_requete = '//' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
 
 /* Si la langue est demandée explicitement, et que le nom de domaine
    ne correspond pas, on redirige sur le bon nom de domaine. */
 include_spip('inc/utils');
 if ($lang = _request('lang')) {
 
-    // Page qui ne seront jamais redirigée
-    $exception = array('calendrier_mini.json');
-
-    $cible = mdl_force_domaine_url_selon_langue($domaine_request, $lang);
-    if ( $cible !== $domaine_request ) {
-        // Redirection sur le bon domaine
+    $cible = mdl_force_domaine_url_selon_langue($url_requete, $lang);
+    if ( $cible !== $url_requete ) {
         include_spip('inc/headers');
-        if (!in_array(_request('page'), $exception))
-            redirige_par_entete('//'.$cible.$_SERVER['REQUEST_URI']);
+        /* Le paramètre lang_ok=oui permet à l'éventuelle page de
+           garde de savoir qu'on a bien fait le choix de changer de
+           langue. On évite alors de rediriger sur la page de garde */
+        redirige_par_entete(parametre_url($cible, 'lang_ok', 'oui'));
     }
 
 /* Si la langue n'est pas demandée explicitement, on essaie de deviner
    selon l'url. */
 } else {
-    set_request('lang', mdl_langue_url_selon_domaine($domaine_request));
+    set_request('lang', mdl_langue_url_selon_domaine($url_requete));
 }
-
 
 
 /**

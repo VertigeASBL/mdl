@@ -10,18 +10,47 @@
  */
 
 if (!defined('_ECRIRE_INC_VERSION')) return;
+
+/**
+ * Retourne une version sans protocole et avec slash de fin d'une url
+ *
+ * Facilite la comparaison entre les urls…
+ *
+ * @param String $url
+ *     L'url à normaliser
+ * @return String
+ *     La version normalisée de l'url
+ */
+function mdl_normaliser_url ($url) {
+
+    /* Le protocole utilisé ne rentre pas en ligne de compte, alors on
+       utilise des urls implicites (commencant par "//") */
+    include_spip('inc/filtres_mini');
+    $url = protocole_implicite($url);
+
+    if (strpos($url, '//') !== 0) {
+        $url = '//' . $url;
+    }
+
+    $url = preg_replace('#([^/])$#', '$1/', $url);
+
+    return $url;
+}
+
 /**
  * Devine la langue de l'url demandée selon le nom de domaine.
  *
- * @param String $domaine_request
- *     Le domaine dont on cherche la langue
+ * @param String $url
+ *     L'url dont on cherche la langue
  * @return String
  *     Le code de langue correspondant à l'url donnée, si on le trouve.
  */
-function mdl_langue_url_selon_domaine ($domaine_request) {
+function mdl_langue_url_selon_domaine ($url) {
+
+    $url = mdl_normaliser_url($url);
 
     foreach ($GLOBALS['domaines'] as $lang => $domaine) {
-        if (strpos($domaine_request, $domaine) !== false) {
+        if (strpos($url, mdl_normaliser_url($domaine)) === 0) {
             return $lang;
         }
     }
@@ -32,28 +61,44 @@ function mdl_langue_url_selon_domaine ($domaine_request) {
  * si le nom de domaine de $url ne correspond pas à $lang, on le
  * remplace par le bon nom de domaine
  *
- * @param String $domaine_request
- *     Le domaine à modifier
+ * @param String $url
+ *     L'url à modifier
  * @param String $lang
  *     La langue que l'on souhaite pour l'url retournée
  * @return String
  *     Une url pointant sur le contenu de l'url donnée, mais sur le
  *     nom de domaine correspondant à la langue passée en paramètre.
  */
-function mdl_force_domaine_url_selon_langue ($domaine_request, $lang) {
+function mdl_force_domaine_url_selon_langue ($url, $lang) {
 
-    $langue_url = mdl_langue_url_selon_domaine($domaine_request);
+    $url = mdl_normaliser_url($url);
+
+    $langue_url = mdl_langue_url_selon_domaine($url);
 
     if ($langue_url !== $lang) {
+
+        /* S'il n'y a pas de protocole dans l'url, la fonction
+           parse_url est buggée pour php < 5.4, on fait donc une
+           bidouille pour contourner le bug */
+        if (strpos($url, '//') === 0) {
+            $no_scheme = true;
+            $url = 'http:' . $url;
+        }
+
+        $composants_url = parse_url($url);
+
+        if ($no_scheme) {
+            unset($composants_url['scheme']);
+        }
         /* On remplace le nom de domaine */
-        $domaine_request = str_replace(
-            $GLOBALS['domaines'][$langue_url],
-            $GLOBALS['domaines'][$lang],
-            $domaine_request
-        );
+        $composants_url['host'] = trim($GLOBALS['domaines'][$lang],'/');
+        $url = mdl_unparse_url($composants_url);
+
+        /* Du coup plus besoin de paramètre lang dans l'url */
+        $url = parametre_url($url, 'lang', '');
     }
 
-    return $domaine_request;
+    return $url;
 }
 
 /**
@@ -63,28 +108,37 @@ function mdl_force_domaine_url_selon_langue ($domaine_request, $lang) {
  * la langue voulue, et on retourne un version de l'url avec le nom de
  * domaine correspondant.
  */
-function mdl_traitement_domaine_par_langue($domaine, $contexte) {
+function mdl_traitement_domaine_par_langue($url, $contexte) {
 
-    // Pas touche à l'espace priver
-    if (test_espace_prive())
-        return $domaine;
+    $url = html_entity_decode($url);
 
-    // Récupèration du domaine
-    $domaine = parse_url($domaine);
+    $url = mdl_force_domaine_url_selon_langue($url, $contexte['lang']);
 
-    $path = $domaine['path'];
-    $domaine = $domaine['host'];
+    $url = htmlentities($url);
 
-    // On va larger le sous domaine en cour de route
-    $domaine = explode('.', $domaine);
+    return $url;
+}
 
-    if (count($domaine) == 3) {
-        unset($domaine[0]);
-    }
+/**
+ * L'inverse de parse_url
+ *
+ * Inspiré par http://php.net/manual/en/function.parse-url.php#106731
+ *
+ * @param array $parsed_url : Des bouts d'urls, tels que retournés par la fonction parse_url
+ *
+ * @return String : L'url correspondant aux bouts qu'on a passé en argument
+ */
+function mdl_unparse_url ($parsed_url) {
 
-    $domaine = implode('.', $domaine);
+    $scheme   = isset($parsed_url['scheme'])   ? $parsed_url['scheme'] . '://'  : '//';
+    $host     = isset($parsed_url['host'])     ? $parsed_url['host']            : '';
+    $port     = isset($parsed_url['port'])     ? ':' . $parsed_url['port']      : '';
+    $user     = isset($parsed_url['user'])     ? $parsed_url['user']            : '';
+    $pass     = isset($parsed_url['pass'])     ? ':' . $parsed_url['pass']      : '';
+    $pass     = ($user || $pass)               ? "$pass@"                       : '';
+    $path     = isset($parsed_url['path'])     ? $parsed_url['path']            : '';
+    $query    = isset($parsed_url['query'])    ? '?' . $parsed_url['query']     : '';
+    $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment']  : '';
 
-    $domaine = mdl_force_domaine_url_selon_langue($domaine, $contexte['lang']);
-
-    return '//'.$domaine.$path.'?'.$_SERVER['QUERY_STRING'];
+    return $scheme . $user . $pass . $host . $port . $path . $query . $fragment;
 }
