@@ -17,6 +17,6 @@
 
 	<licence>GNU/GPL</licence>
 
-  <necessite nom="saisies" compatibilite="[1.40.4;[" />
+  <necessite nom="saisies" compatibilite="[1.31.4;[" />
 
 </paquet>
