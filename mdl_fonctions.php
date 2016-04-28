@@ -32,7 +32,7 @@ function mdl_normaliser_url ($url) {
         $url = '//' . $url;
     }
 
-    $url = preg_replace('#([^/])$#', '$1/', $url);
+    $url = preg_replace('#([^/])$#', '$1', $url);
 
     return $url;
 }

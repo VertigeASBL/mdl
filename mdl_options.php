@@ -45,7 +45,7 @@ if ($lang = _request('lang')) {
         /* Le paramètre lang_ok=oui permet à l'éventuelle page de
            garde de savoir qu'on a bien fait le choix de changer de
            langue. On évite alors de rediriger sur la page de garde */
-        redirige_par_entete(parametre_url($cible, 'lang_ok', 'oui'));
+        redirige_par_entete(parametre_url($cible, 'lang_ok', 'oui', '&'));
     }
 
 /* Si la langue n'est pas demandée explicitement, on essaie de deviner
