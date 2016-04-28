@@ -32,7 +32,7 @@ $GLOBALS['domaines'] = array_map('mdl_normaliser_url', $GLOBALS['domaines']);
  */
 
 $url_requete = '//' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-
+$url_requete = mdl_normaliser_url($url_requete);
 
 /* Si la langue est demandée explicitement, et que le nom de domaine
    ne correspond pas, on redirige sur le bon nom de domaine. */

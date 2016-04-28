@@ -98,7 +98,7 @@ function mdl_force_domaine_url_selon_langue ($url, $lang) {
         $url = parametre_url($url, 'lang', '');
     }
 
-    return $url;
+    return mdl_normaliser_url($url);
 }
 
 /**
